@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">QARobot</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_qa_fragment">Hello qa fragment</string>
+    <string name="hello_acount_fragment">hello acount fragment</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
