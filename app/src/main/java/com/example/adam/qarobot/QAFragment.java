@@ -70,10 +70,8 @@ public class QAFragment extends Fragment {
     }
 
     private void initMsgs() {
-        Msg msg1 = new Msg("hell0",Msg.TYPE_RECEIVED);
-        msgList.add(msg1);
-        Msg msg2 = new Msg("hello",Msg.TYPE_SENT);
-        msgList.add(msg2);
+        Msg msg = new Msg("hello",Msg.TYPE_RECEIVED);
+        msgList.add(msg);
     }
 
 
