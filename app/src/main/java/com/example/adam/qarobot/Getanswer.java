@@ -16,7 +16,7 @@ public class Getanswer {
         this.question = question;
     }
 
-    public String getans() throws InterruptedException {
+    public void getans() {
         //String ans = null;
         new Thread(new Runnable() {
             @Override
@@ -52,7 +52,5 @@ public class Getanswer {
                 }
             }
         }).start();
-        //Thread.sleep(1000);
-        return ans;
     }
 }
