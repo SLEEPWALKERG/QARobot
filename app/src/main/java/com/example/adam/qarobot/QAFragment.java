@@ -1,7 +1,9 @@
 package com.example.adam.qarobot;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -10,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -30,6 +33,9 @@ public class QAFragment extends Fragment {
     private Button send;
     private RecyclerView msgRecyclerView;
     private MsgAdapter adapter;
+    private AlertDialog.Builder builder;
+    private int indexofitem = 0;
+    private AlertDialog dialog;
 
     public QAFragment() {
         // Required empty public constructor
@@ -73,6 +79,7 @@ public class QAFragment extends Fragment {
                     getans("http://211.144.121.122:18887/proxy?p=",content);
                     /*adapter.notifyItemInserted(msgList.size()-1);
                     msgRecyclerView.scrollToPosition(msgList.size()-1);*/
+                    showdiag();
                     inputText.setText("");
                 }
             }
@@ -129,6 +136,33 @@ public class QAFragment extends Fragment {
         msgList.add(msg);
         adapter.notifyItemInserted(msgList.size()-1);
         msgRecyclerView.scrollToPosition(msgList.size()-1);
+    }
+
+    private void showdiag(){
+        builder = new AlertDialog.Builder(this.getContext());
+        builder.setTitle("请选择您认为是最好的答案");
+        String[] choices = {"第一个答案","第二个答案","第三个答案","第四个答案"};
+        builder.setSingleChoiceItems(choices, indexofitem, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                indexofitem = i;
+            }
+        });
+        builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Toast.makeText(getActivity(),"thanks for your vote",Toast.LENGTH_SHORT);
+                dialog.dismiss();
+            }
+        });
+        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialog.dismiss();
+            }
+        });
+        dialog = builder.create();
+        dialog.show();
     }
 
 }

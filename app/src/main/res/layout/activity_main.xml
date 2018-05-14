@@ -12,8 +12,7 @@
         android:id="@+id/qa_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-    </LinearLayout>
+        android:orientation="horizontal" />
     <com.ashokvarma.bottomnavigation.BottomNavigationBar
         android:id="@+id/bottom_navigation_bar"
         android:layout_width="match_parent"
