@@ -64,10 +64,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void setDefaultFragment(){
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        //qaFragment = QAFragment.newInstance("qa");
-        adminFragment = AdminFragment.newInstance("admin");
-        //fragmentTransaction.replace(R.id.qa_content,qaFragment);
-        fragmentTransaction.replace(R.id.qa_content,adminFragment);
+        qaFragment = QAFragment.newInstance("qa");
+        //adminFragment = AdminFragment.newInstance("admin");
+        fragmentTransaction.replace(R.id.qa_content,qaFragment);
+        //fragmentTransaction.replace(R.id.qa_content,adminFragment);
         fragmentTransaction.commit();
     }
 }

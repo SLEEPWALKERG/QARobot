@@ -14,6 +14,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.mongodb.MongoClient;
+import com.mongodb.client.MongoDatabase;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,6 +39,12 @@ public class QAFragment extends Fragment {
     private AlertDialog.Builder builder;
     private int indexofitem = 0;
     private AlertDialog dialog;
+    private String ans_0 = null;
+    private String ans_1 = null;
+    private String ans_2 = null;
+    private String ans_3 = null;
+    private MongoDatabase mongoDatabase;
+    private MongoClient mongoClient;
 
     public QAFragment() {
         // Required empty public constructor
@@ -58,6 +67,7 @@ public class QAFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        initDataBase();
         View view = inflater.inflate(R.layout.fragment_qa, container, false);
         initMsgs();
         inputText = (EditText) view.findViewById(R.id.input_send);
@@ -79,7 +89,7 @@ public class QAFragment extends Fragment {
                     getans("http://211.144.121.122:18887/proxy?p=",content);
                     /*adapter.notifyItemInserted(msgList.size()-1);
                     msgRecyclerView.scrollToPosition(msgList.size()-1);*/
-                    showdiag();
+                    //showdiag();
                     inputText.setText("");
                 }
             }
@@ -88,7 +98,7 @@ public class QAFragment extends Fragment {
     }
 
     private void initMsgs() {
-        Msg msg = new Msg("hello",Msg.TYPE_RECEIVED);
+        Msg msg = new Msg("Hello",Msg.TYPE_RECEIVED);
         msgList.add(msg);
     }
     public void getans(final String s, final String question) {
@@ -132,10 +142,15 @@ public class QAFragment extends Fragment {
 
     public void show(String ans){
         String r = ans.substring(ans.indexOf("</br>") + 5, ans.indexOf("</br>", ans.indexOf("</br>") + 5));
+        this.ans_0 = r;
+        this.ans_1 = r;
+        this.ans_2 = r;
+        this.ans_3 = r;
         Msg msg = new Msg(r,Msg.TYPE_RECEIVED);
         msgList.add(msg);
         adapter.notifyItemInserted(msgList.size()-1);
         msgRecyclerView.scrollToPosition(msgList.size()-1);
+        showdiag();
     }
 
     private void showdiag(){
@@ -163,6 +178,16 @@ public class QAFragment extends Fragment {
         });
         dialog = builder.create();
         dialog.show();
+    }
+
+    public void initDataBase(){
+        try {
+            mongoClient = new MongoClient("localhost",27017);
+            mongoDatabase = mongoClient.getDatabase("mydata");
+            Toast.makeText(this.getActivity(),"connect to the database successfully",Toast.LENGTH_SHORT);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
 }
