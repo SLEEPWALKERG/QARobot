@@ -166,6 +166,7 @@ public class QAFragment extends Fragment {
         builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
+
                 Toast.makeText(getActivity(),"thanks for your vote",Toast.LENGTH_SHORT);
                 dialog.dismiss();
             }
@@ -182,8 +183,8 @@ public class QAFragment extends Fragment {
 
     public void initDataBase(){
         try {
-            mongoClient = new MongoClient("localhost",27017);
-            mongoDatabase = mongoClient.getDatabase("mydata");
+            mongoClient = new MongoClient("118.25.135.35",27017);
+            mongoDatabase = mongoClient.getDatabase("qarobottest");
             Toast.makeText(this.getActivity(),"connect to the database successfully",Toast.LENGTH_SHORT);
         }catch (Exception e){
             e.printStackTrace();
