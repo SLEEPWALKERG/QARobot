@@ -106,6 +106,11 @@ public class QAFragment extends Fragment {
                     adapter.notifyItemInserted(msgList.size() - 1);
                     msgRecyclerView.scrollToPosition(msgList.size() - 1);
                     inputText.setText("");
+                    try {
+                        Thread.currentThread().sleep(8000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     showdiag();
                 }
             }
