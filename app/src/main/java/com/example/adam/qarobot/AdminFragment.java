@@ -131,6 +131,11 @@ public class AdminFragment extends Fragment {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         Getdata getdata = new Getdata(countDownLatch);
         executorService.execute(getdata);
+        try {
+            countDownLatch.await();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         i = 0;
         max = q.size();
         if (max == 0) {
@@ -166,8 +171,8 @@ public class AdminFragment extends Fragment {
                 documents.add(document);
                 try {
                     JSONObject jsonObject = new JSONObject(document.toJson());
-                    q.set(i, jsonObject.getString("question"));
-                    a.set(i, jsonObject.getString("answer"));
+                    q.add(jsonObject.getString("question"));
+                    a.add(jsonObject.getString("answer"));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
