@@ -2,6 +2,7 @@ package com.example.adam.qarobot;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Looper;
 import android.os.StrictMode;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -28,6 +29,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -106,12 +109,16 @@ public class QAFragment extends Fragment {
                     adapter.notifyItemInserted(msgList.size() - 1);
                     msgRecyclerView.scrollToPosition(msgList.size() - 1);
                     inputText.setText("");
-                    try {
-                        Thread.currentThread().sleep(8000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    showdiag();
+                    Timer timer = new Timer();
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            Looper.prepare();
+                            showdiag();
+                            Looper.loop();
+                        }
+                    },8000);
+                    //showdiag();
                 }
             }
         });

@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
@@ -30,6 +31,7 @@ import java.util.concurrent.Executors;
 
 
 public class AdminFragment extends Fragment {
+    private final static String s = "Everything has been checked";
     public static ExecutorService executorService = Executors.newCachedThreadPool();
     private TextView question;
     private TextView answer;
@@ -40,64 +42,9 @@ public class AdminFragment extends Fragment {
     private ArrayList<String> q = new ArrayList<>(5);
     private ArrayList<String> a = new ArrayList<>(5);
     private List<Document> documents = new ArrayList<>();
-    private final static int CONFIRM = 1;
-    private final static int CANCEL = 2;
-    private Handler handler = new mHandler();
     private int i;
     private int max;
 
-    class mHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case CONFIRM:
-                    MongoCollection<Document> collection = mongoDatabase.getCollection("checked");
-                    collection.insertOne(documents.get(i));
-                    if (i < max - 1) {
-                        i++;
-                        question.setText(q.get(i));
-                        answer.setText(a.get(i));
-                        ChooseThread chooseThread = new ChooseThread();
-                        chooseThread.start();
-                    }
-                    break;
-                case CANCEL:
-                    if (i < max - 1) {
-                        i++;
-                        question.setText(q.get(i));
-                        answer.setText(a.get(i));
-                        ChooseThread chooseThread = new ChooseThread();
-                        chooseThread.start();
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
-    class ChooseThread extends Thread {
-        @Override
-        public void run() {
-            confirm.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Message message = new Message();
-                    message.what = CONFIRM;
-                    handler.sendMessage(message);
-                }
-            });
-
-            delete.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Message message = new Message();
-                    message.what = CANCEL;
-                    handler.sendMessage(message);
-                }
-            });
-        }
-    }
 
     public AdminFragment() {
         // Required empty public constructor
@@ -139,12 +86,44 @@ public class AdminFragment extends Fragment {
         i = 0;
         max = q.size();
         if (max == 0) {
-            question.setText("Everything has been checked");
+            question.setText(s);
         } else {
             question.setText(q.get(i));
             answer.setText(a.get(i));
-            ChooseThread choose = new ChooseThread();
         }
+        confirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MongoCollection<Document> collection = mongoDatabase.getCollection("checked");
+                collection.insertOne(documents.get(i));
+                Toast.makeText(getContext(),"Successfully push to the database",Toast.LENGTH_SHORT).show();
+                Delete(documents.get(i));
+                i += 1;
+                if (i < max){
+                    question.setText(q.get(i));
+                    answer.setText(a.get(i));
+                }else{
+                    Toast.makeText(getContext(),"Everything has been checked",Toast.LENGTH_SHORT).show();
+                    question.setText(s);
+                    answer.setText("");
+                }
+            }
+        });
+        delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Delete(documents.get(i));
+                i += 1;
+                if (i < max){
+                    question.setText(q.get(i));
+                    answer.setText(a.get(i));
+                }else{
+                    Toast.makeText(getContext(),"Everything has been checked",Toast.LENGTH_SHORT).show();
+                    question.setText(s);
+                    answer.setText("");
+                }
+            }
+        });
         return view;
     }
 
@@ -179,6 +158,11 @@ public class AdminFragment extends Fragment {
             }
             countDownLatch.countDown();
         }
+    }
+
+    private void Delete(Document document){
+        MongoCollection<Document> collection = mongoDatabase.getCollection("unchecked");
+        collection.deleteMany(document);
     }
 
 }
