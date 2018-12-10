@@ -7,21 +7,23 @@
     tools:context=".QAFragment">
 
     <!-- TODO: Update blank fragment layout -->
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="50dp"
-        android:orientation="vertical">
+        android:layout_marginBottom="55dp">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/msg_recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:layout_height="match_parent"
+            android:layout_above="@+id/thislinear"/>
 
         <LinearLayout
+            android:id="@+id/thislinear"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_alignParentBottom="true">
 
             <EditText
                 android:id="@+id/input_send"
@@ -37,5 +39,5 @@
                 android:layout_height="wrap_content"
                 android:text="Send" />
         </LinearLayout>
-    </LinearLayout>
+    </RelativeLayout>
 </FrameLayout>
