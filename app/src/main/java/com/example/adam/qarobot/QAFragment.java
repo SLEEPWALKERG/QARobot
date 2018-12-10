@@ -1,8 +1,11 @@
 package com.example.adam.qarobot;
 
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.os.StrictMode;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -38,8 +41,7 @@ import java.util.concurrent.Executors;
 
 public class QAFragment extends Fragment {
 
-    public static ExecutorService executorService = Executors.newCachedThreadPool();
-
+    private static int cou = 0;
     private List<Msg> msgList = new ArrayList<>();
     private EditText inputText;
     private Button send;
@@ -52,7 +54,10 @@ public class QAFragment extends Fragment {
     private String content = null;
     private MongoDatabase mongoDatabase;
     private MongoClient mongoClient;
-    private static final String CQA = "http://211.144.121.122:18887/proxy?p=";
+    private Handler mhandler;
+    private static final int ans_cqa = 0;
+    private static final int ans_kbqa = 1;
+    private static final int checked = 4;
 
     public QAFragment() {
         // Required empty public constructor
@@ -66,11 +71,13 @@ public class QAFragment extends Fragment {
         return fragment;
     }
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
 
+    @SuppressLint("HandlerLeak")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -87,6 +94,35 @@ public class QAFragment extends Fragment {
         msgRecyclerView.setLayoutManager(layoutManager);
         adapter = new MsgAdapter(msgList);
         msgRecyclerView.setAdapter(adapter);
+        mhandler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                switch (msg.what) {
+                    case ans_cqa:
+                        Msg msg1 = new Msg((String)(msg.obj), Msg.TYPE_RECEIVED);
+                        msgList.add(msg1);
+                        adapter.notifyItemInserted(msgList.size() - 1);
+                        msgRecyclerView.scrollToPosition(msgList.size() - 1);
+                        store_1((String)(msg.obj),ans_cqa);
+                        cou++;
+                        break;
+                    case ans_kbqa:
+                        Msg msg2 = new Msg((String)(msg.obj), Msg.TYPE_RECEIVED);
+                        msgList.add(msg2);
+                        adapter.notifyItemInserted(msgList.size() - 1);
+                        msgRecyclerView.scrollToPosition(msgList.size() - 1);
+                        store_1((String)(msg.obj),ans_kbqa);
+                        cou++;
+                        break;
+                    case checked:
+                        showdiag();
+                        cou = 0;
+                        break;
+                    default:
+                            break;
+                }
+            }
+        };
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -96,7 +132,8 @@ public class QAFragment extends Fragment {
                     msgList.add(msg);
                     adapter.notifyItemInserted(msgList.size() - 1);
                     msgRecyclerView.scrollToPosition(msgList.size() - 1);
-                    CountDownLatch countDownLatch = new CountDownLatch(1);
+                    inputText.setText("");
+                    /*CountDownLatch countDownLatch = new CountDownLatch(1);
                     WorkThread cqa = new WorkThread(content, countDownLatch);
                     executorService.execute(cqa);
                     try {
@@ -118,7 +155,13 @@ public class QAFragment extends Fragment {
                             Looper.loop();
                         }
                     },8000);
-                    //showdiag();
+                    //showdiag();*/
+                    CQA_Thread cqa_thread = new CQA_Thread(content, mhandler);
+                    cqa_thread.start();
+                    KBQA_Thread kbqa_thread = new KBQA_Thread(mhandler,content);
+                    kbqa_thread.start();
+                    Check_Thread check_thread = new Check_Thread(mhandler);
+                    check_thread.start();
                 }
             }
         });
@@ -129,98 +172,10 @@ public class QAFragment extends Fragment {
         Msg msg = new Msg("Hello", Msg.TYPE_RECEIVED);
         msgList.add(msg);
     }
-    /*public void getans(final String s, final String question) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                HttpURLConnection connection = null;
-                BufferedReader reader = null;
-                try{
-                    URL url = new URL(s+question);
-                    connection = (HttpURLConnection) url.openConnection();
-                    connection.setRequestMethod("GET");
-                    connection.setConnectTimeout(8000);
-                    connection.setReadTimeout(8000);
-                    connection.connect();
-                    InputStream in = connection.getInputStream();
-                    reader = new BufferedReader(new InputStreamReader(in));
-                    StringBuilder response = new StringBuilder();
-                    String line;
-                    while((line = reader.readLine()) != null){
-                        System.out.println(line);
-                        response.append(line);
-                    }
-                    store_1(response.toString());
-                }catch (Exception e){
-                    e.printStackTrace();
-                }finally {
-                    if (reader != null){
-                        try{
-                            reader.close();
-                        }catch (IOException e){
-                            e.printStackTrace();
-                        }
-                    }
-                    if (connection != null)
-                        connection.disconnect();
-                }
-            }
-        }).start();
-    }*/
 
-    class WorkThread extends Thread {
-        private String question;
-        private CountDownLatch countDownLatch;
 
-        public WorkThread(String question, CountDownLatch countDownLatch) {
-            this.question = question;
-            this.countDownLatch = countDownLatch;
-        }
-
-        @Override
-        public void run() {
-            HttpURLConnection connection = null;
-            BufferedReader reader = null;
-            try {
-                URL url = new URL(CQA + question);
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.setConnectTimeout(60000);
-                connection.setReadTimeout(60000);
-                connection.connect();
-                InputStream in = connection.getInputStream();
-                reader = new BufferedReader(new InputStreamReader(in));
-                StringBuilder response = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    System.out.println(line);
-                    response.append(line);
-                }
-                store_1(response.toString());
-                countDownLatch.countDown();
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (connection != null)
-                    connection.disconnect();
-            }
-        }
-    }
-
-    public void store_1(String r) {
-        //String r = ans.substring(ans.indexOf("</br>") + 5, ans.indexOf("</br>", ans.indexOf("</br>") + 5));
-        //String r = ans;
-        this.ans[0] = r;
-        this.ans[1] = r;
-        this.ans[2] = r;
-        this.ans[3] = r;
+    public void store_1(String r, int index) {
+        this.ans[index] = r;
     }
 
     private void showdiag() {
@@ -269,4 +224,7 @@ public class QAFragment extends Fragment {
         }
     }
 
+    public static int getCou() {
+        return cou;
+    }
 }
