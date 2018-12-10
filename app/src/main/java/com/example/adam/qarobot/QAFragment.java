@@ -99,7 +99,7 @@ public class QAFragment extends Fragment {
             public void handleMessage(Message msg) {
                 switch (msg.what) {
                     case ans_cqa:
-                        Msg msg1 = new Msg((String)(msg.obj), Msg.TYPE_RECEIVED);
+                        Msg msg1 = new Msg("社区问答：\n" + (String)(msg.obj), Msg.TYPE_RECEIVED);
                         msgList.add(msg1);
                         adapter.notifyItemInserted(msgList.size() - 1);
                         msgRecyclerView.scrollToPosition(msgList.size() - 1);
@@ -107,7 +107,7 @@ public class QAFragment extends Fragment {
                         cou++;
                         break;
                     case ans_kbqa:
-                        Msg msg2 = new Msg((String)(msg.obj), Msg.TYPE_RECEIVED);
+                        Msg msg2 = new Msg("阅读理解模型：\n" + (String)(msg.obj), Msg.TYPE_RECEIVED);
                         msgList.add(msg2);
                         adapter.notifyItemInserted(msgList.size() - 1);
                         msgRecyclerView.scrollToPosition(msgList.size() - 1);

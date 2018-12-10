@@ -31,4 +31,7 @@ dependencies {
     implementation 'com.ashokvarma.android:bottom-navigation-bar:2.0.4'
     //implementation 'org.mongodb:mongo-java-driver:3.8.0-beta2'
     implementation files('libs/mongo-java-driver-3.8.0-beta2.jar')
+    implementation files('libs/okhttp-3.12.0.jar')
+    implementation files('libs/okio-1.13.0.jar')
+    implementation files('libs/json-20180813.jar')
 }
