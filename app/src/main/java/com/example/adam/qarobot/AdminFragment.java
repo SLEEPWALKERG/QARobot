@@ -1,6 +1,8 @@
 package com.example.adam.qarobot;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -9,7 +11,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,19 +35,14 @@ import java.util.concurrent.Executors;
 
 
 public class AdminFragment extends Fragment {
-    private final static String s = "Everything has been checked";
-    public static ExecutorService executorService = Executors.newCachedThreadPool();
-    private TextView question;
-    private TextView answer;
-    private Button confirm;
-    private Button delete;
+    private final static String s = "Everything has been checked. Have a rest!";
     private MongoClient mongoClient;
     private MongoDatabase mongoDatabase;
-    private ArrayList<String> q = new ArrayList<>(5);
-    private ArrayList<String> a = new ArrayList<>(5);
-    private List<Document> documents = new ArrayList<>();
-    private int i;
-    private int max;
+    private static List<Document> documents = new ArrayList<>();
+    private List<Qa_pair> list = new ArrayList<>();
+    private Handler handler;
+    private ListView listView;
+    private Listadapter adapter;
 
 
     public AdminFragment() {
@@ -63,6 +62,7 @@ public class AdminFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
+    @SuppressLint("HandlerLeak")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -70,28 +70,59 @@ public class AdminFragment extends Fragment {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         View view = inflater.inflate(R.layout.fragment_admin, container, false);
-        question = (TextView) view.findViewById(R.id.question);
-        answer = (TextView) view.findViewById(R.id.answer);
-        confirm = (Button) view.findViewById(R.id.btn_confirm);
-        delete = (Button) view.findViewById(R.id.btn_delete);
-        initdatabase();
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-        Getdata getdata = new Getdata(countDownLatch);
-        executorService.execute(getdata);
-        try {
-            countDownLatch.await();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        i = 0;
-        max = q.size();
-        if (max == 0) {
-            question.setText(s);
-        } else {
-            question.setText(q.get(i));
-            answer.setText(a.get(i));
-        }
-        confirm.setOnClickListener(new View.OnClickListener() {
+        handler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                switch (msg.what) {
+                    case 0:
+                        list.clear();
+                        for (Qa_pair qaPair : (List<Qa_pair>) msg.obj){
+                            list.add(qaPair);
+                        }
+                        Initview();
+                }
+            }
+        };
+        Initdatabase();
+        adapter = new Listadapter(view.getContext(), R.layout.list_item, list);
+        listView = (ListView) view.findViewById(R.id.listView);
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                final int index = i;
+                final Document docu = new Document();
+                docu.append("question", list.get(i).getQuestion());
+                docu.append("answer", list.get(i).getAnswer());
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setTitle("Please check");
+                builder.setMessage("Please choose to delete it or save it to our database");
+                builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        MongoCollection<Document> collection = mongoDatabase.getCollection("checked");
+                        collection.insertOne(docu);
+                        Toast.makeText(getContext(),"Successfully save into the adtabase",Toast.LENGTH_SHORT).show();
+                        list.remove(index);
+                        Delete(docu);
+                        Initview();
+                    }
+                });
+                builder.setNegativeButton("Delete", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Delete(docu);
+                        Toast.makeText(getContext(),"Deleted",Toast.LENGTH_SHORT).show();
+                        list.remove(index);
+                        Initview();
+                    }
+                });
+                builder.show();
+            }
+        });
+        Getdata_thread mythread = new Getdata_thread(handler);
+        mythread.start();
+        /*confirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 MongoCollection<Document> collection = mongoDatabase.getCollection("checked");
@@ -123,46 +154,24 @@ public class AdminFragment extends Fragment {
                     answer.setText("");
                 }
             }
-        });
+        });*/
         return view;
     }
 
-    private void initdatabase() {
+    private void Initdatabase() {
         mongoClient = new MongoClient("118.25.135.35", 27017);
-        mongoDatabase = mongoClient.getDatabase("qarobottest");
+        mongoDatabase = mongoClient.getDatabase("te");
     }
 
-    class Getdata extends Thread {
-        private CountDownLatch countDownLatch = null;
-
-        public Getdata(CountDownLatch countDownLatch) {
-            this.countDownLatch = countDownLatch;
-        }
-
-        @Override
-        public void run() {
-            MongoCollection<Document> collection = mongoDatabase.getCollection("unchecked");
-            FindIterable<Document> findIterable = collection.find();
-            MongoCursor<Document> mongoCursor = findIterable.iterator();
-            int i = 0;
-            while (mongoCursor.hasNext()) {
-                Document document = mongoCursor.next();
-                documents.add(document);
-                try {
-                    JSONObject jsonObject = new JSONObject(document.toJson());
-                    q.add(jsonObject.getString("question"));
-                    a.add(jsonObject.getString("answer"));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            countDownLatch.countDown();
-        }
-    }
 
     private void Delete(Document document){
         MongoCollection<Document> collection = mongoDatabase.getCollection("unchecked");
         collection.deleteMany(document);
     }
 
+    private void Initview(){
+        if (list.size() == 0)
+            Toast.makeText(getContext(),s, Toast.LENGTH_LONG).show();
+        adapter.notifyDataSetChanged();
+    }
 }

@@ -21,22 +21,9 @@ import android.widget.Toast;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-
 import org.bson.Document;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 
 public class QAFragment extends Fragment {
@@ -99,7 +86,12 @@ public class QAFragment extends Fragment {
             public void handleMessage(Message msg) {
                 switch (msg.what) {
                     case ans_cqa:
-                        Msg msg1 = new Msg("社区问答：\n" + (String)(msg.obj), Msg.TYPE_RECEIVED);
+                        String tmp = (String) msg.obj;
+                        int start = tmp.indexOf("</br>");
+                        start += 5;
+                        int end = tmp.indexOf("</br>", start);
+                        String str_cqa = tmp.substring(start,end);
+                        Msg msg1 = new Msg("社区问答：\n" + str_cqa, Msg.TYPE_RECEIVED);
                         msgList.add(msg1);
                         adapter.notifyItemInserted(msgList.size() - 1);
                         msgRecyclerView.scrollToPosition(msgList.size() - 1);
@@ -181,7 +173,7 @@ public class QAFragment extends Fragment {
     private void showdiag() {
         builder = new AlertDialog.Builder(this.getContext());
         builder.setTitle("请选择您认为是最好的答案");
-        String[] choices = {"第一个答案", "第二个答案", "第三个答案", "第四个答案"};
+        String[] choices = {"社区问答", "阅读理解模型"};
         builder.setSingleChoiceItems(choices, indexofitem, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
@@ -191,13 +183,15 @@ public class QAFragment extends Fragment {
         builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if (indexofitem < 2) {
+                if (indexofitem == 1) {
                     MongoCollection<Document> collection = mongoDatabase.getCollection("checked");
                     Document document = new Document("question", content).append("answer", ans[indexofitem]);
                     collection.insertOne(document);
-                } else {
+                } else if (indexofitem == 0){
                     MongoCollection<Document> collection = mongoDatabase.getCollection("unchecked");
                     Document document = new Document("question", content).append("answer", ans[indexofitem]);
+                    System.out.println(content);
+                    System.out.println(ans[indexofitem]);
                     collection.insertOne(document);
                 }
                 Toast.makeText(getActivity(), "thanks for your voting", Toast.LENGTH_SHORT);
@@ -215,13 +209,9 @@ public class QAFragment extends Fragment {
     }
 
     public void initDataBase() {
-        try {
-            mongoClient = new MongoClient("118.25.135.35", 27017);
-            mongoDatabase = mongoClient.getDatabase("qarobottest");
-            //Toast.makeText(this.getActivity(), "connect to the database successfully", Toast.LENGTH_SHORT);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        mongoClient = new MongoClient("118.25.135.35", 27017);
+        mongoDatabase = mongoClient.getDatabase("te");
+        Toast.makeText(this.getActivity(), "connect to the database successfully", Toast.LENGTH_SHORT);
     }
 
     public static int getCou() {

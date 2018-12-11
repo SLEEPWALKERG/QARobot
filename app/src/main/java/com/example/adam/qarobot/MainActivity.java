@@ -1,5 +1,6 @@
 package com.example.adam.qarobot;
 
+import android.content.Intent;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,6 +18,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Intent intent = getIntent();
+        final String username = intent.getStringExtra("username").toUpperCase();
         bottomNavigationBar = (BottomNavigationBar) findViewById(R.id.bottom_navigation_bar);
         bottomNavigationBar.setMode(BottomNavigationBar.MODE_FIXED);
         bottomNavigationBar.setTabSelectedListener(new BottomNavigationBar.OnTabSelectedListener() {
@@ -36,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case 2:
                         if (acountFragment == null)
-                            acountFragment = AcountFragment.newInstance("acount");
+                            acountFragment = AcountFragment.newInstance(username);
                         fragmentTransaction.replace(R.id.qa_content,acountFragment);
                         break;
                 }

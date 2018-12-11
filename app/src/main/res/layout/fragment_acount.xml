@@ -3,18 +3,61 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".AcountFragment">
 
     <!-- TODO: Update blank fragment layout -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="50dp">
-        <TextView
-            android:id="@+id/acount_tv"
-            android:layout_width="wrap_content"
+        android:layout_marginBottom="55dp"
+        android:orientation="vertical">
+        <LinearLayout
+            android:id="@+id/first"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="100dp"/>
+            android:layout_marginTop="50dp"
+            android:orientation="vertical">
+
+            <com.makeramen.roundedimageview.RoundedImageView
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/ica"
+                app:riv_oval="true"
+                android:scaleType="centerCrop"
+                android:layout_gravity="center_horizontal"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_below="@id/first"
+            android:layout_marginTop="50dp">
+            <TextView
+                android:id="@+id/username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:textStyle="bold"
+                android:textColor="#000000"
+                android:layout_gravity="center"/>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_alignParentBottom="true">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ICA小我机器人"
+                android:layout_gravity="center"/>
+        </LinearLayout>
+
+
     </RelativeLayout>
 
 </FrameLayout>

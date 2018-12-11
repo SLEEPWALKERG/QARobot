@@ -34,7 +34,7 @@ public class AcountFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_acount, container, false);
         Bundle bundle = getArguments();
         String args1 = bundle.getString("args1");
-        TextView textView = (TextView) view.findViewById(R.id.acount_tv);
+        TextView textView = (TextView) view.findViewById(R.id.username);
         textView.setText(args1);
         return view;
     }
