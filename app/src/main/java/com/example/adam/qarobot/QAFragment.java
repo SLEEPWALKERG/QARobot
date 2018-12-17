@@ -86,11 +86,7 @@ public class QAFragment extends Fragment {
             public void handleMessage(Message msg) {
                 switch (msg.what) {
                     case ans_cqa:
-                        String tmp = (String) msg.obj;
-                        int start = tmp.indexOf("</br>");
-                        start += 5;
-                        int end = tmp.indexOf("</br>", start);
-                        String str_cqa = tmp.substring(start,end);
+                        String str_cqa = (String) msg.obj;
                         Msg msg1 = new Msg("社区问答：\n" + str_cqa, Msg.TYPE_RECEIVED);
                         msgList.add(msg1);
                         adapter.notifyItemInserted(msgList.size() - 1);
@@ -125,6 +121,7 @@ public class QAFragment extends Fragment {
                     adapter.notifyItemInserted(msgList.size() - 1);
                     msgRecyclerView.scrollToPosition(msgList.size() - 1);
                     inputText.setText("");
+                    cou = 0;
                     /*CountDownLatch countDownLatch = new CountDownLatch(1);
                     WorkThread cqa = new WorkThread(content, countDownLatch);
                     executorService.execute(cqa);

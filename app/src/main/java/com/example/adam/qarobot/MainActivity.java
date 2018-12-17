@@ -56,9 +56,9 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        bottomNavigationBar.addItem(new BottomNavigationItem(R.drawable.ic_launcher_background,"ChatRoom"));
-        bottomNavigationBar.addItem(new BottomNavigationItem(R.drawable.ic_launcher_background,"Admin"));
-        bottomNavigationBar.addItem(new BottomNavigationItem(R.drawable.ic_launcher_background,"MyAcount"));
+        bottomNavigationBar.addItem(new BottomNavigationItem(R.drawable.chat, "ChatRoom"));
+        bottomNavigationBar.addItem(new BottomNavigationItem(R.drawable.admin, "Admin"));
+        bottomNavigationBar.addItem(new BottomNavigationItem(R.drawable.account, "MyAcount"));
         bottomNavigationBar.setFirstSelectedPosition(0);
         bottomNavigationBar.initialise();
 

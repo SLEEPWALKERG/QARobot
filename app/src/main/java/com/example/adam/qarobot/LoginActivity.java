@@ -80,6 +80,7 @@ public class LoginActivity extends AppCompatActivity {
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         intent.putExtra("username",user);
                         startActivity(intent);
+                        LoginActivity.this.finish();
                     } else{
                         Toast.makeText(LoginActivity.this,"Wrong Password", Toast.LENGTH_LONG).show();
                     }
