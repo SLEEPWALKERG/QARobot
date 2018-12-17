@@ -104,6 +104,7 @@ public class QAFragment extends Fragment {
                         break;
                     case checked:
                         showdiag();
+                        send.setEnabled(true);
                         cou = 0;
                         break;
                     default:
@@ -122,6 +123,7 @@ public class QAFragment extends Fragment {
                     msgRecyclerView.scrollToPosition(msgList.size() - 1);
                     inputText.setText("");
                     cou = 0;
+                    send.setEnabled(false);
                     /*CountDownLatch countDownLatch = new CountDownLatch(1);
                     WorkThread cqa = new WorkThread(content, countDownLatch);
                     executorService.execute(cqa);
